@@ -1,0 +1,18 @@
+[package]
+name = "allocated"
+version = "0.1.0"
+edition = "2021"
+authors = ["Alex Chamberlain"]
+description = "Abstractions for working with explicitly allocated data structures"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/alexchamberlain/allocated-rs"
+readme = "README.md"
+keywords = ["allocator", "data-structures", "allocation"]
+categories = ["data-structures", "memory-management", "no-std"]
+
+[dependencies]
+allocator-api2 = "0.4.0"
+
+[lints.clippy]
+undocumented_unsafe_blocks = "warn"
+multiple_unsafe_ops_per_block = "warn"
