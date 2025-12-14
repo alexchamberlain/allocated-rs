@@ -5,8 +5,8 @@
 //!
 //! [nomicon]: https://doc.rust-lang.org/nomicon
 
-use std::mem::ManuallyDrop;
-use std::ops::{Deref, DerefMut};
+use core::mem::ManuallyDrop;
+use core::ops::{Deref, DerefMut};
 
 use allocator_api2::alloc::Allocator;
 use allocator_api2::alloc::Global;
@@ -23,13 +23,13 @@ pub struct Vec<T, A: Allocator = Global> {
     raw: ManuallyDrop<AllocatedVec<T>>,
 }
 
-impl<T: std::cmp::PartialEq, A: Allocator> PartialEq<Self> for Vec<T, A> {
+impl<T: PartialEq, A: Allocator> PartialEq<Self> for Vec<T, A> {
     fn eq(&self, other: &Self) -> bool {
         self.raw == other.raw
     }
 }
 
-impl<T: std::cmp::PartialEq, A: Allocator> Eq for Vec<T, A> {}
+impl<T: PartialEq, A: Allocator> Eq for Vec<T, A> {}
 
 impl<T, A: Allocator> Drop for Vec<T, A> {
     fn drop(&mut self) {

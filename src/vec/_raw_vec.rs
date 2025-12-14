@@ -5,10 +5,10 @@
 //!
 //! [nomicon]: https://doc.rust-lang.org/nomicon
 
-use std::alloc::Layout;
-use std::cmp;
-use std::mem;
-use std::ptr::NonNull;
+use core::alloc::Layout;
+use core::cmp;
+use core::mem;
+use core::ptr::NonNull;
 
 use allocator_api2::alloc::Allocator;
 
@@ -230,13 +230,13 @@ impl<T> Iterator for RawValIter<T> {
         } else if mem::size_of::<T>() == 0 {
             self.start = (self.start as usize + 1) as *const _;
             // Safety: T is zero-sized; dangling is well aligned
-            Some(unsafe { std::ptr::read(NonNull::<T>::dangling().as_ptr()) })
+            Some(unsafe { core::ptr::read(NonNull::<T>::dangling().as_ptr()) })
         } else {
             let old_ptr = self.start;
             // Safety: self.start < self.end; self.start is always valid
             self.start = unsafe { self.start.offset(1) };
             // Safety: old_ptr is always an aligned pointer to allocated memory
-            unsafe { Some(std::ptr::read(old_ptr)) }
+            unsafe { Some(core::ptr::read(old_ptr)) }
         }
     }
 
@@ -255,12 +255,12 @@ impl<T> DoubleEndedIterator for RawValIter<T> {
         } else if mem::size_of::<T>() == 0 {
             self.end = (self.end as usize - 1) as *const _;
             // Safety: T is zero-sized
-            Some(unsafe { std::ptr::read(NonNull::<T>::dangling().as_ptr()) })
+            Some(unsafe { core::ptr::read(NonNull::<T>::dangling().as_ptr()) })
         } else {
             // Safety: Moving towards start
             self.end = unsafe { self.end.offset(-1) };
             // Safety: self.end >= self.start
-            Some(unsafe { std::ptr::read(self.end) })
+            Some(unsafe { core::ptr::read(self.end) })
         }
     }
 }

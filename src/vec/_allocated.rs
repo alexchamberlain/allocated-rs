@@ -5,10 +5,10 @@
 //!
 //! [nomicon]: https://doc.rust-lang.org/nomicon
 
-use std::fmt;
-use std::marker::PhantomData;
-use std::mem;
-use std::ops::{Deref, DerefMut};
+use core::fmt;
+use core::marker::PhantomData;
+use core::mem;
+use core::ops::{Deref, DerefMut};
 
 use allocator_api2::alloc::Allocator;
 
@@ -85,7 +85,7 @@ impl<T> AllocatedVec<T> {
         // Safety: We just checked that there's enough space allocated
         let ptr = unsafe { self.ptr().add(self.len) };
         // Safety: We just checked that there's enough space allocated
-        unsafe { std::ptr::write(ptr, elem) };
+        unsafe { core::ptr::write(ptr, elem) };
 
         // Can't overflow, we'll OOM first.
         self.len += 1;
@@ -101,7 +101,7 @@ impl<T> AllocatedVec<T> {
             // Safety: self.len < self.capacity
             let ptr = unsafe { self.ptr().add(self.len) };
             // Safety: ptr is an aligned pointer to allocated memory
-            unsafe { Some(std::ptr::read(ptr)) }
+            unsafe { Some(core::ptr::read(ptr)) }
         }
     }
 
@@ -128,9 +128,9 @@ impl<T> AllocatedVec<T> {
         let ptr2 = unsafe { self.ptr().add(index + 1) };
 
         // Safety: All writes will occur within our buffer.
-        unsafe { std::ptr::copy(ptr1, ptr2, self.len - index) };
+        unsafe { core::ptr::copy(ptr1, ptr2, self.len - index) };
         // Safety: Write occurs within buffer.
-        unsafe { std::ptr::write(ptr1, elem) };
+        unsafe { core::ptr::write(ptr1, elem) };
 
         self.len += 1;
 
@@ -184,10 +184,10 @@ impl<T> AllocatedVec<T> {
         let remaining_len = self.len - len;
         // Safety: len < self.len; ptr points to a section of our allocated buffer
         let ptr = unsafe { self.as_mut_ptr().add(len) };
-        let s = std::ptr::slice_from_raw_parts_mut(ptr, remaining_len);
+        let s = core::ptr::slice_from_raw_parts_mut(ptr, remaining_len);
         self.len = len;
         // Safety: s is a valid slice of instances of `T`
-        unsafe { std::ptr::drop_in_place(s) };
+        unsafe { core::ptr::drop_in_place(s) };
     }
 
     pub fn clear(&mut self) {
@@ -204,10 +204,10 @@ impl<T> AllocatedVec<T> {
         let ptr2 = unsafe { self.ptr().add(index + 1) };
 
         // Safety: ptr1 is a valid pointer within our buffer
-        let result = unsafe { std::ptr::read(ptr1) };
+        let result = unsafe { core::ptr::read(ptr1) };
 
         // Safety: All writes will occur within our buffer.
-        unsafe { std::ptr::copy(ptr2, ptr1, self.len - index) };
+        unsafe { core::ptr::copy(ptr2, ptr1, self.len - index) };
 
         result
     }
@@ -239,14 +239,14 @@ impl<T> Deref for AllocatedVec<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
         // Safety: len <= capacity
-        unsafe { std::slice::from_raw_parts(self.ptr(), self.len) }
+        unsafe { core::slice::from_raw_parts(self.ptr(), self.len) }
     }
 }
 
 impl<T> DerefMut for AllocatedVec<T> {
     fn deref_mut(&mut self) -> &mut [T] {
         // Safety: len <= capacity
-        unsafe { std::slice::from_raw_parts_mut(self.ptr(), self.len) }
+        unsafe { core::slice::from_raw_parts_mut(self.ptr(), self.len) }
     }
 }
 
@@ -256,7 +256,7 @@ impl<T> IntoIterator for AllocatedVec<T> {
     fn into_iter(self) -> IntoIter<T> {
         let iter = RawValIter::new(&self);
         // Safety: `buf` is a valid pointer to an array of `T` elements
-        let buf = unsafe { std::ptr::read(&self.buf) };
+        let buf = unsafe { core::ptr::read(&self.buf) };
         mem::forget(self);
 
         IntoIter::from_parts(iter, buf)

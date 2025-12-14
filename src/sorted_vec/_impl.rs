@@ -1,9 +1,9 @@
 //! Implementation of a sorted vec.
 
 use allocator_api2::alloc::Global;
-use std::fmt::Debug;
-use std::mem::ManuallyDrop;
-use std::ops::Deref;
+use core::fmt::Debug;
+use core::mem::ManuallyDrop;
+use core::ops::Deref;
 
 use allocator_api2::alloc::Allocator;
 
@@ -25,13 +25,13 @@ where
     raw: ManuallyDrop<AllocatedSortedVec<T>>,
 }
 
-impl<T: Ord + std::cmp::PartialEq, A: Allocator> PartialEq<Self> for SortedVec<T, A> {
+impl<T: Ord + PartialEq, A: Allocator> PartialEq<Self> for SortedVec<T, A> {
     fn eq(&self, other: &Self) -> bool {
         self.raw == other.raw
     }
 }
 
-impl<T: Ord + std::cmp::PartialEq, A: Allocator> Eq for SortedVec<T, A> {}
+impl<T: Ord + PartialEq, A: Allocator> Eq for SortedVec<T, A> {}
 
 impl<T: Ord, A: Allocator> Drop for SortedVec<T, A> {
     fn drop(&mut self) {

@@ -41,12 +41,12 @@
 //! `AllocResult<DropGuard<T, A>>`. Use `into_inner()` to extract the value
 //! when you're ready to transfer ownership to a permanent structure.
 
-use std::alloc::Layout;
-use std::mem;
-use std::mem::ManuallyDrop;
-use std::mem::MaybeUninit;
-use std::ops::{Deref, DerefMut};
-use std::ptr::NonNull;
+use core::alloc::Layout;
+use core::mem;
+use core::mem::ManuallyDrop;
+use core::mem::MaybeUninit;
+use core::ops::{Deref, DerefMut};
+use core::ptr::NonNull;
 
 use allocator_api2::alloc::Allocator;
 
@@ -92,11 +92,11 @@ impl<T: DropIn, A: Allocator> DropGuard<T, A> {
         // SAFETY: Valid pointer as part of struct
         let value_ptr = unsafe { &(*x).value as *const ManuallyDrop<T> };
         // SAFETY: Valid pointer as part of struct
-        let value = unsafe { std::ptr::read(value_ptr) };
+        let value = unsafe { core::ptr::read(value_ptr) };
         // SAFETY: Valid pointer as part of struct
         let alloc_ptr = unsafe { &(*x).alloc as *const A };
         // SAFETY: Valid pointer as part of struct
-        let alloc = unsafe { std::ptr::read(alloc_ptr) };
+        let alloc = unsafe { core::ptr::read(alloc_ptr) };
 
         (value, alloc)
     }
@@ -191,9 +191,9 @@ impl<T, A: Allocator> RawDropGuard<T, A> {
 impl<T, A: Allocator> Drop for RawDropGuard<T, A> {
     #[inline]
     fn drop(&mut self) {
-        // Safety: guarenteed by `new`
+        // Safety: guaranteed by `new`
         unsafe {
-            std::ptr::drop_in_place(self.value.as_ptr());
+            core::ptr::drop_in_place(self.value.as_ptr());
         }
         // Safety: guarenteed by `new`
         unsafe { self.alloc.deallocate(self.value.cast(), self.layout) }

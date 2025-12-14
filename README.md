@@ -10,6 +10,12 @@ explicitly allocated data structures, which makes them
 more ergonomic to write, easier to make them correctly
 manage memory and more consistent between different implementations.
 
+## Features
+
+- **`no_std` compatible**: Core functionality works without the standard library
+- **Optional `std` feature**: Enables `TrackingAllocator` with backtrace support
+- Works with any allocator implementing the `Allocator` trait
+
 Most of this code was written before code generating AI was
 widespread. However, Claude Code has been used to fix typos and improve
 the documentation since then.

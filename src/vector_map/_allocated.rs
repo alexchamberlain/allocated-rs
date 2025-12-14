@@ -1,7 +1,8 @@
-use std::cmp::Ord;
-use std::fmt::Debug;
-use std::mem::ManuallyDrop;
-use std::ops::Index;
+use core::cmp::Ord;
+use core::fmt::Debug;
+use core::mem::ManuallyDrop;
+use core::ops::Index;
+use core::mem;
 
 use allocator_api2::alloc::Allocator;
 
@@ -192,7 +193,7 @@ impl<K: Ord, V> AllocatedVectorMap<K, V> {
         v: V,
     ) -> AllocResult<Option<V>> {
         match self.keys.binary_search(&k) {
-            Ok(pos) => Ok(Some(std::mem::replace(&mut self.values[pos], v))),
+            Ok(pos) => Ok(Some(mem::replace(&mut self.values[pos], v))),
             Err(pos) => {
                 self.keys.insert_in(alloc, pos, k)?;
                 self.values.insert_in(alloc, pos, v)?;
@@ -258,11 +259,11 @@ impl<K: Ord, V> DropIn for AllocatedVectorMap<K, V> {
     /// `alloc` must be the allocator used to allocate this object.
     unsafe fn drop_in<A: Allocator>(&mut self, alloc: &A) {
         for k in self.keys.iter_mut() {
-            std::ptr::drop_in_place(k);
+            core::ptr::drop_in_place(k);
         }
 
         for v in self.values.iter_mut() {
-            std::ptr::drop_in_place(v);
+            core::ptr::drop_in_place(v);
         }
 
         self.keys.drop_in(alloc);
@@ -392,7 +393,7 @@ impl<'a, K: 'a + Ord, V: 'a> OccupiedEntry<'a, K, V> {
 }
 
 pub struct Keys<'a, K> {
-    iter: std::slice::Iter<'a, K>,
+    iter: core::slice::Iter<'a, K>,
 }
 
 impl<'a, K: 'a> Iterator for Keys<'a, K> {
@@ -417,7 +418,7 @@ impl<'a, K: 'a> DoubleEndedIterator for Keys<'a, K> {
 }
 
 pub struct Values<'a, V> {
-    iter: std::slice::Iter<'a, V>,
+    iter: core::slice::Iter<'a, V>,
 }
 
 impl<'a, K: 'a> Iterator for Values<'a, K> {
@@ -442,7 +443,7 @@ impl<'a, K: 'a> DoubleEndedIterator for Values<'a, K> {
 }
 
 pub struct ValuesMut<'a, V> {
-    iter: std::slice::IterMut<'a, V>,
+    iter: core::slice::IterMut<'a, V>,
 }
 
 impl<'a, K: 'a> Iterator for ValuesMut<'a, K> {
@@ -467,7 +468,7 @@ impl<'a, K: 'a> DoubleEndedIterator for ValuesMut<'a, K> {
 }
 
 pub struct Iter<'a, K, V> {
-    iter: std::iter::Zip<std::slice::Iter<'a, K>, std::slice::Iter<'a, V>>,
+    iter: core::iter::Zip<core::slice::Iter<'a, K>, core::slice::Iter<'a, V>>,
 }
 
 impl<'a, K: 'a, V: 'a> Iterator for Iter<'a, K, V> {
@@ -492,7 +493,7 @@ impl<'a, K: 'a, V: 'a> DoubleEndedIterator for Iter<'a, K, V> {
 }
 
 pub struct IterMut<'a, K, V> {
-    iter: std::iter::Zip<std::slice::Iter<'a, K>, std::slice::IterMut<'a, V>>,
+    iter: core::iter::Zip<core::slice::Iter<'a, K>, core::slice::IterMut<'a, V>>,
 }
 
 impl<'a, K: 'a, V: 'a> Iterator for IterMut<'a, K, V> {

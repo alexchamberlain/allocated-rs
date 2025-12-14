@@ -54,8 +54,9 @@ cargo clippy         # Run linter (with private items checked per clippy.toml)
 
 ### Testing
 ```bash
-cargo test           # Run all tests
-cargo test <name>    # Run specific test
+cargo test                    # Run all tests (no_std mode, 16 tests)
+cargo test --features std     # Run with std feature (18 tests, includes TrackingAllocator)
+cargo test <name>             # Run specific test
 ```
 
 ### Documentation
@@ -92,6 +93,64 @@ The project enforces:
 - `check-private-items = true` (in clippy.toml)
 
 All unsafe blocks must be documented with safety comments explaining why they are safe.
+
+## no_std Compatibility
+
+This crate is **`no_std` by default** to support embedded systems, kernels, and WebAssembly.
+
+### Feature Flags
+
+- **Default (no features)**: Core functionality using `core` and `alloc`
+  - `Vec`, `SortedVec`, `VectorMap`
+  - `DropGuard`, `AllocatorExt`
+  - `CountingAllocator`
+
+- **`std` feature**: Enables std-dependent functionality
+  - `TrackingAllocator` (uses `Backtrace` and `HashMap`)
+  - `HashSet` comparison impl for `AllocatedSortedVec`
+
+### Import Conventions for no_std
+
+- Use `core::` for primitives: `mem`, `ptr`, `ops`, `cmp`, `fmt`
+- Use `alloc::` for heap types: `rc::Rc`, `vec::Vec`, `string::String`
+- Use `std::` only behind `#[cfg(feature = "std")]`
+- Test modules need `use std::vec::Vec;` for the `vec![]` macro
+
+### Testing with std
+
+The lib.rs has:
+```rust
+#[cfg(any(feature = "std", test))]
+#[macro_use]
+extern crate std;
+```
+
+This enables the `vec![]` macro in tests. Test modules should add `use std::vec::Vec;` for the type.
+
+## Publishing Workflow
+
+### Pre-publish Checklist
+```bash
+# Test both configurations
+cargo test --quiet
+cargo test --features std --quiet
+
+# Run clippy on both
+cargo clippy -- -D warnings
+cargo clippy --features std -- -D warnings
+
+# Build docs
+cargo doc --no-deps
+
+# Dry run publish
+cargo publish --dry-run
+```
+
+### Version Bump
+1. Update version in `Cargo.toml`
+2. Add entry to `CHANGELOG.md`
+3. Create git tag: `git tag v0.x.y`
+4. Push with tags: `git push --tags`
 
 ## Dependencies
 

@@ -1,4 +1,6 @@
 //! Utility for tracking allocations made via an [Allocator]
+//!
+//! **Note:** This module requires the `std` feature as it uses `Backtrace` and `HashMap`.
 
 use std::backtrace::Backtrace;
 use std::cell::Ref;

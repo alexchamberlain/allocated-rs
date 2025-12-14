@@ -1,8 +1,8 @@
 //! Implementation of a map using sorted, dynamic arrays.
 
-use std::cmp::Ord;
-use std::fmt::Debug;
-use std::mem::ManuallyDrop;
+use core::cmp::Ord;
+use core::fmt::Debug;
+use core::mem::ManuallyDrop;
 
 use allocator_api2::alloc::{Allocator, Global};
 
@@ -21,13 +21,13 @@ where
     raw: ManuallyDrop<AllocatedVectorMap<K, V>>,
 }
 
-impl<K: Ord, V: std::cmp::PartialEq, A: Allocator> PartialEq<Self> for VectorMap<K, V, A> {
+impl<K: Ord, V: PartialEq, A: Allocator> PartialEq<Self> for VectorMap<K, V, A> {
     fn eq(&self, other: &Self) -> bool {
         self.raw == other.raw
     }
 }
 
-impl<K: Ord, V: std::cmp::PartialEq, A: Allocator> Eq for VectorMap<K, V, A> {}
+impl<K: Ord, V: PartialEq, A: Allocator> Eq for VectorMap<K, V, A> {}
 
 impl<K: Ord, V, A: Allocator> Drop for VectorMap<K, V, A> {
     fn drop(&mut self) {
@@ -143,6 +143,8 @@ impl<K: Ord, V, A: Allocator> VectorMap<K, V, A> {
 
 #[cfg(test)]
 mod test {
+    use std::vec::Vec;
+
     use crate::CountingAllocator;
 
     use super::AllocResult;

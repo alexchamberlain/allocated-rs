@@ -38,8 +38,8 @@
 //! All allocation methods return [`RawDropGuard`] to prevent leaks on error.
 
 use allocator_api2::alloc::Allocator;
-use std::alloc::Layout;
-use std::ptr::NonNull;
+use core::alloc::Layout;
+use core::ptr::NonNull;
 
 use super::{AllocErrorWithLayout, RawDropGuard, RawDropGuardResult};
 

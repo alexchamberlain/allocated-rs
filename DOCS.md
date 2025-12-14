@@ -5,6 +5,10 @@ explicitly allocated data structures, which makes them
 more ergonomic to write, easier to make them correctly
 manage memory and more consistent between different implementations.
 
+This crate is `no_std` compatible by default, making it suitable for embedded
+systems, kernels, and other environments without the standard library. Enable
+the `std` feature to use `TrackingAllocator` with backtrace support.
+
 # Design
 
 The basic idea of this crate is to separate data structures into

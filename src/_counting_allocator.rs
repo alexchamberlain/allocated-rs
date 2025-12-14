@@ -1,9 +1,10 @@
 //! Utility for counting allocations made via an [Allocator]
 
-use std::cell::RefCell;
-use std::ops::Deref;
-use std::ptr::NonNull;
-use std::rc::Rc;
+use core::cell::RefCell;
+use core::ops::Deref;
+use core::ptr::NonNull;
+
+use alloc::rc::Rc;
 
 use allocator_api2::alloc::{AllocError, Allocator, Global, Layout};
 

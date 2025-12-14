@@ -1,5 +1,4 @@
-use std::error::Error;
-use std::fmt;
+use core::fmt;
 
 use allocator_api2::alloc::Layout;
 
@@ -14,7 +13,7 @@ impl AllocErrorWithLayout {
     /// with the contained `Layout`.
     #[inline]
     pub fn handle_alloc_error(self) -> ! {
-        std::alloc::handle_alloc_error(self.layout)
+        alloc::alloc::handle_alloc_error(self.layout)
     }
 }
 
@@ -25,7 +24,8 @@ impl From<Layout> for AllocErrorWithLayout {
     }
 }
 
-impl Error for AllocErrorWithLayout {}
+#[cfg(feature = "std")]
+impl std::error::Error for AllocErrorWithLayout {}
 
 impl fmt::Display for AllocErrorWithLayout {
     #[inline]

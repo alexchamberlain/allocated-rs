@@ -1,9 +1,12 @@
 //! Implementation of an allocated sorted vec.
 
+#[cfg(feature = "std")]
 use std::collections::HashSet;
-use std::fmt::Debug;
+#[cfg(feature = "std")]
 use std::hash::Hash;
-use std::ops::Deref;
+
+use core::fmt::Debug;
+use core::ops::Deref;
 
 use allocator_api2::alloc::Allocator;
 
@@ -128,7 +131,7 @@ where
     }
 }
 
-impl<T: std::cmp::Ord> Deref for AllocatedSortedVec<T> {
+impl<T: Ord> Deref for AllocatedSortedVec<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
         &self.value
@@ -145,6 +148,7 @@ where
     }
 }
 
+#[cfg(feature = "std")]
 impl<Index: 'static + Ord + Hash + Eq + Copy> PartialEq<HashSet<Index>>
     for AllocatedSortedVec<Index>
 {
