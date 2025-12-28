@@ -89,7 +89,6 @@ unsafe impl<A: Allocator> Allocator for TrackingAllocator<A> {
     }
 
     unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
-        // println!("Deallocating {:?}", ptr);
         self.tracker.borrow_mut().record_deallocate(&layout, ptr);
         self.allocator.deallocate(ptr, layout)
     }

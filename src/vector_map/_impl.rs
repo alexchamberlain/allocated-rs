@@ -119,17 +119,17 @@ impl<K: Ord, V, A: Allocator> VectorMap<K, V, A> {
 
     pub fn entry(&mut self, k: K) -> Entry<'_, K, V, A> {
         // SAFETY: self.alloc is always used for self.raw's allocations
-        unsafe { self.raw.entry(&self.alloc, k) }
+        unsafe { self.raw.entry_in(&self.alloc, k) }
     }
 
     pub fn reserve(&mut self, additional: usize) {
         // SAFETY: self.alloc is always used for self.raw's allocations
-        unsafe { self.raw.reserve(&self.alloc, additional) }
+        unsafe { self.raw.reserve_in(&self.alloc, additional) }
     }
 
     pub fn shrink_to_fit(&mut self) {
         // SAFETY: self.alloc is always used for self.raw's allocations
-        unsafe { self.raw.shrink_to_fit(&self.alloc).handle_alloc_error() }
+        unsafe { self.raw.shrink_to_fit_in(&self.alloc).handle_alloc_error() }
     }
 
     pub fn first(&self) -> Option<(&K, &V)> {

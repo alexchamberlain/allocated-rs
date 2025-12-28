@@ -1,12 +1,14 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 #![deny(clippy::undocumented_unsafe_blocks)]
 
-use allocator_api2::alloc::AllocError;
-use allocator_api2::alloc::Global;
-use allocator_api2::alloc::Layout;
 use std::ptr::NonNull;
 
+use allocator_api2::alloc::AllocError;
 use allocator_api2::alloc::Allocator;
+use allocator_api2::alloc::Global;
+use allocator_api2::alloc::Layout;
+
+use allocated::RawDropGuard;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
@@ -38,44 +40,6 @@ unsafe fn deallocate_point_basic<A: Allocator>(alloc: &A, ptr: NonNull<Point>) {
     unsafe { alloc.deallocate(ptr.cast(), layout) }
 }
 
-struct RawDropGuard<T, A: Allocator> {
-    value: NonNull<T>,
-    alloc: A,
-    layout: Layout,
-}
-
-impl<T, A: Allocator> RawDropGuard<T, A> {
-    /// # Safety
-    ///
-    /// The pointer to be valid and allocated by `alloc`.
-    unsafe fn new(value: NonNull<T>, alloc: A, layout: Layout) -> Self {
-        Self {
-            value: value.cast(),
-            alloc,
-            layout,
-        }
-    }
-
-    /// Unwrap the inner value. This is intended to transfer ownership into
-    /// the permanent data structure.
-    fn into_inner(self) -> NonNull<T> {
-        let value = self.value;
-        std::mem::forget(self);
-        value
-    }
-}
-
-impl<T, A: Allocator> Drop for RawDropGuard<T, A> {
-    #[inline]
-    fn drop(&mut self) {
-        // Safety: The `new` method requires the pointer to be valid and allocated by `alloc`.
-        unsafe {
-            std::ptr::drop_in_place(self.value.as_ptr());
-            self.alloc.deallocate(self.value.cast(), self.layout);
-        }
-    }
-}
-
 fn allocate_from<A: Allocator, T>(alloc: &A, value: T) -> Result<RawDropGuard<T, &A>, AllocError> {
     let layout = Layout::new::<T>();
     let ptr = alloc.allocate(layout)?;
@@ -85,7 +49,7 @@ fn allocate_from<A: Allocator, T>(alloc: &A, value: T) -> Result<RawDropGuard<T,
         ptr.write(value);
     }
     // SAFETY: `ptr` is valid and allocated by `alloc`.
-    Ok(unsafe { RawDropGuard::new(ptr, alloc, layout) })
+    Ok(RawDropGuard::new(ptr, alloc, layout))
 }
 
 fn main() -> Result<(), AllocError> {

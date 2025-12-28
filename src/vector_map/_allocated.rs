@@ -1,8 +1,8 @@
 use core::cmp::Ord;
 use core::fmt::Debug;
+use core::mem;
 use core::mem::ManuallyDrop;
 use core::ops::Index;
-use core::mem;
 
 use allocator_api2::alloc::Allocator;
 
@@ -115,7 +115,7 @@ impl<K: Ord, V> AllocatedVectorMap<K, V> {
     ///
     /// `alloc` must be the allocator used to allocate this object.
     #[inline]
-    pub unsafe fn reserve<A: Allocator>(&mut self, alloc: &A, additional: usize) {
+    pub unsafe fn reserve_in<A: Allocator>(&mut self, alloc: &A, additional: usize) {
         self.keys.try_reserve_in(alloc, additional).unwrap();
         self.values.try_reserve_in(alloc, additional).unwrap();
     }
@@ -124,7 +124,7 @@ impl<K: Ord, V> AllocatedVectorMap<K, V> {
     ///
     /// `alloc` must be the allocator used to allocate this object.
     #[inline]
-    pub unsafe fn shrink_to_fit<A: Allocator>(&mut self, alloc: &A) -> AllocResult<()> {
+    pub unsafe fn shrink_to_fit_in<A: Allocator>(&mut self, alloc: &A) -> AllocResult<()> {
         self.keys.shrink_to_fit_in(alloc)?;
         self.values.shrink_to_fit_in(alloc)?;
 
@@ -229,7 +229,11 @@ impl<K: Ord, V> AllocatedVectorMap<K, V> {
     /// # Safety
     ///
     /// `alloc` must be the allocator used to allocate this object.
-    pub unsafe fn entry<'a, A: Allocator>(&'a mut self, alloc: &'a A, k: K) -> Entry<'a, K, V, A> {
+    pub unsafe fn entry_in<'a, A: Allocator>(
+        &'a mut self,
+        alloc: &'a A,
+        k: K,
+    ) -> Entry<'a, K, V, A> {
         match self.keys.binary_search(&k) {
             Ok(pos) => Entry::Occupied(OccupiedEntry::new(self, pos)),
             Err(pos) => Entry::Vacant(VacantEntry::new(self, alloc, pos, k)),
