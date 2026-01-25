@@ -131,6 +131,29 @@ impl<T: DropIn, A: Allocator> DropGuard<T, A> {
     pub fn alloc(&self) -> &A {
         &self.alloc
     }
+
+    /// Swap the inner value with another `ManuallyDrop<T>`.
+    ///
+    /// This is useful for replacing old values with new ones during operations
+    /// like rebalancing. When the `DropGuard` goes out of scope, it will drop
+    /// the old value that was swapped in.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // Create new structure
+    /// let mut new_data = create_new_data(alloc)?;  // Returns DropGuard
+    ///
+    /// // Swap with old structure - old value moves into the guard
+    /// new_data.swap(&mut self.data);
+    ///
+    /// // When new_data goes out of scope, it drops the OLD data
+    /// // self.data now contains the NEW data
+    /// ```
+    #[inline]
+    pub fn swap(&mut self, other: &mut ManuallyDrop<T>) {
+        mem::swap(&mut self.value, other);
+    }
 }
 
 impl<T: DropIn, A: Allocator> Deref for DropGuard<T, A> {
