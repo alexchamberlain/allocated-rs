@@ -23,7 +23,7 @@ pub use _counting_allocator::CountingAllocator;
 pub use _drop_guard::{DropGuard, DropGuardResult, RawDropGuard, RawDropGuardResult};
 pub use _error::{AllocErrorWithLayout, AllocResult, AllocResultExt};
 #[cfg(feature = "std")]
-pub use _tracking_allocator::TrackingAllocator;
+pub use _tracking_allocator::{SharedTrackingAllocator, TrackingAllocator};
 pub use _traits::{CollectIn, DropIn, FromIteratorIn, IntoIteratorIn, RecursiveDropIn};
 pub use sorted_vec::{AllocatedSortedVec, SortedVec};
 pub use vec::{AllocatedVec, SliceExt, Vec};
