@@ -212,6 +212,28 @@ impl<T> AllocatedVec<T> {
         result
     }
 
+    /// Swap the contents of two vectors.
+    ///
+    /// This is a plain swap of the vectors' buffer pointers, capacities and
+    /// lengths: no memory is allocated, copied or freed, and no elements are
+    /// moved or dropped.
+    ///
+    /// Combined with [`DropGuard`](crate::DropGuard): swapping a freshly
+    /// built vector into place through a guard's `DerefMut` leaves the *old*
+    /// contents in the guard, which frees them with the correct allocator
+    /// when it goes out of scope.
+    ///
+    /// # Safety
+    ///
+    /// Both vectors MUST have been allocated in the same allocator. An
+    /// `AllocatedVec` does not carry its allocator, so this cannot be
+    /// checked; swapping vectors from different allocators swaps the
+    /// obligation to later [`drop_in`](DropIn::drop_in) each buffer with the
+    /// allocator it was allocated in.
+    pub unsafe fn swap(&mut self, other: &mut Self) {
+        mem::swap(self, other);
+    }
+
     pub fn drain(&mut self) -> Drain<'_, T> {
         let iter = RawValIter::new(self);
 
