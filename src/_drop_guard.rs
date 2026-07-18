@@ -178,6 +178,7 @@ impl<T: DropIn, A: Allocator> Drop for DropGuard<T, A> {
         let mut value = unsafe { ManuallyDrop::take(&mut self.value) };
         // SAFETY: `value` was allocated using `self.alloc` per `new` Safety notice
         unsafe { value.drop_in(&self.alloc) }
+        core::mem::forget(value);
     }
 }
 
